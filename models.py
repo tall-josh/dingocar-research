@@ -121,10 +121,16 @@ def loss(y_true, y_pred):
     pred_is_sim   = y_pred[2]
     pred_smoosh   = y_pred[3]
 
-    loss  = K.mean(K.square(pred_angle-gt_angle))
-    loss += K.mean(K.square(pred_throttle-gt_throttle))
-    loss += K.mean(K.square(pred_is_sim-gt_is_sim))
-    loss += K.mean(K.square(pred_smoosh - point_5))
+    loss        = K.mean(K.square(pred_angle-gt_angle))
+    loss       += K.mean(K.square(pred_throttle-gt_throttle))
+
+    # Multiply by gt_is_sim so we only use loss from the simulated data.
+    # If gt_is_sim is zero this will drive the loss to zero.
+    is_sim_loss = K.mean(K.square(pred_is_sim-gt_is_sim)) * gt_is_sim
+    smoosh_loss = K.mean(K.square(pred_smoosh - point_5))
+
+    loss += is_sim_loss
+    loss += smoosh_loss
     return loss
 
 def control_only_metric(y_true, y_pred):
@@ -198,7 +204,7 @@ def loss(y_true, y_pred):
     loss += K.mean(K.square(pred_throttle-gt_throttle))
 
     #categorical_crossentropy
-    loss += K.mean(K.categorical_crossentropy(pred_is_sim, gt_is_sim))
+    is_sim_loss = K.mean(K.categorical_crossentropy(pred_is_sim, gt_is_sim))
     loss += K.mean(K.categorical_crossentropy(pred_smoosh, point_5))
     return loss
 
