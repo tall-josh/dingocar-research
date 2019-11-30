@@ -1,6 +1,6 @@
 import click
 
-import train, infer, plot_pca
+import train, infer
 
 @click.group()
 def main():
@@ -14,7 +14,6 @@ def add_module_to_group(module, group):
 
 add_module_to_group(train, main)
 add_module_to_group(infer, main)
-add_module_to_group(plot_pca, main)
 
 
 if __name__ == "__main__":

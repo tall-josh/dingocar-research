@@ -22,7 +22,7 @@ def load_image(img):
 def batcher(seq, size):
     return (seq[pos:pos + size] for pos in range(0, len(seq), size))
 
-def get_gen(data, batch_size, smooshing):
+def get_gen(data, batch_size, smooshing, categorical=False):
     while True:
         np.random.shuffle(data)
         for batch in batcher(data, batch_size):
@@ -44,7 +44,10 @@ def get_gen(data, batch_size, smooshing):
 
                 if smooshing:
                     is_sim.append(ele[IS_SIM])
-                    smoosh.append(0.5)
+                    if categorical:
+                        smoosh.append([0.5,0.5])
+                    else:
+                        smoosh.append(0.5)
                     y = [steering, throttle, is_sim, smoosh]
                 else:
                     y = [steering, throttle]
@@ -52,7 +55,8 @@ def get_gen(data, batch_size, smooshing):
             yield [x], y
 
 
-def get_gens(tub_paths, batch_size=32, train_frac=0.8, seed=42, smooshing=False):
+def get_gens(tub_paths, batch_size=32, train_frac=0.8, seed=42,
+             smooshing=False, categorical=False):
     np.random.seed(41)
     records = []
     for path in tub_paths:
@@ -66,8 +70,8 @@ def get_gens(tub_paths, batch_size=32, train_frac=0.8, seed=42, smooshing=False)
     train_data = records[:train_split]
     valid_data = records[train_split:]
 
-    train_gen = get_gen(train_data, batch_size, smooshing)
-    valid_gen = get_gen(valid_data, batch_size, smooshing)
+    train_gen = get_gen(train_data, batch_size, smooshing, categorical = categorical)
+    valid_gen = get_gen(valid_data, batch_size, smooshing, categorical = categorical)
 
     return ((train_gen, int(len(train_data)/batch_size)),
            (valid_gen, int(len(valid_data)/batch_size)))
