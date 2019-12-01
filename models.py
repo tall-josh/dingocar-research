@@ -13,7 +13,6 @@ from tensorflow.python.keras.models import Model, Sequential
 from tensorflow.python.keras.layers.merge import concatenate
 
 from generators import get_gens
-from layers import default_n_linear, smoosh_classification, smoosh_linear
 
 __all__ = ["KerasLinear", "CrossentropySmoosh", "LinearSmoosh"]
 
@@ -92,7 +91,6 @@ class KerasPilot(object):
         return features[0].tolist()
 
 
-
 ################################################################################
 
 class KerasLinear(KerasPilot):
@@ -101,64 +99,14 @@ class KerasLinear(KerasPilot):
     Keras Dense layer with linear activation. One each for steering and throttle.
     The output is not bounded.
     '''
-    def __init__(self):
-        super(KerasLinear, self).__init__(default_n_linear())
+    def __init__(self, *, model):
+        super(KerasLinear, self).__init__(model)
 
-    def compile(self):
+    def compile(self, *, loss):
         self.model.compile(optimizer=self.optimizer,
-                loss='mse')
+                loss=loss)
 
 ################################################################################
-
-def loss(y_true, y_pred):
-    gt_angle    = y_true[0]
-    gt_throttle = y_true[1]
-    gt_is_sim   = y_true[2]
-    point_5     = y_true[3]
-
-    pred_angle    = y_pred[0]
-    pred_throttle = y_pred[1]
-    pred_is_sim   = y_pred[2]
-    pred_smoosh   = y_pred[3]
-
-    loss        = K.mean(K.square(pred_angle-gt_angle))
-    loss       += K.mean(K.square(pred_throttle-gt_throttle))
-
-    # Multiply by gt_is_sim so we only use loss from the simulated data.
-    # If gt_is_sim is zero this will drive the loss to zero.
-    is_sim_loss = K.mean(K.square(pred_is_sim-gt_is_sim)) * gt_is_sim
-    smoosh_loss = K.mean(K.square(pred_smoosh - point_5))
-
-    loss += is_sim_loss
-    loss += smoosh_loss
-    return loss
-
-def control_only_metric(y_true, y_pred):
-    gt_angle      = y_true[0]
-    gt_throttle   = y_true[1]
-
-    pred_angle    = y_pred[0]
-    pred_throttle = y_pred[1]
-
-    return K.mean(K.square(pred_angle-gt_angle)) +\
-           K.mean(K.square(pred_throttle-gt_throttle))
-
-class CopyWeights(keras.callbacks.Callback):
-
-    def __init__(self, kl):
-        self.kl = kl
-
-    def on_train_batch_begin(self, batch, logs=None):
-        kl = self.kl
-        names = [l.name for l in kl.model.layers]
-        # ORDER of result not gaurenteed. So we sort.
-        layers = [l for l in kl.model.layers if l.name in ["is_sim", "smoosh"]]
-        layers = sorted(layers, key = lambda x: x.name)
-        is_sim, smoosh = layers
-        assert "is_sim" in is_sim.name, f"'is_sim' != '{is_sim.name}'"
-        assert "smoosh" in smoosh.name, f"'smoosh' != '{smoosh.name}'"
-
-        smoosh.set_weights(is_sim.get_weights())
 
 class LinearSmoosh(KerasPilot):
     '''
@@ -166,10 +114,12 @@ class LinearSmoosh(KerasPilot):
     Keras Dense layer with linear activation. One each for steering and throttle.
     The output is not bounded.
     '''
-    def __init__(self):
-        super(LinearSmoosh, self).__init__(smoosh_linear())
+    from layers import smoosh_linear
+    from losses import is_sim_linear_loss as loss
+    def __init__(self, *, model):
+        super(LinearSmoosh, self).__init__(model)
 
-    def compile(self):
+    def compile(self, *, loss):
         self.model.compile(optimizer=self.optimizer,
                            loss=loss)#, metrics=[control_only_metric])
         print(f"Availiable metrics: {self.model.metrics_names}")
@@ -189,43 +139,15 @@ class LinearSmoosh(KerasPilot):
 
 ################################################################################
 
-def loss(y_true, y_pred):
-    gt_angle    = y_true[0]
-    gt_throttle = y_true[1]
-    gt_is_sim   = y_true[2]
-    point_5     = y_true[3]
-
-    pred_angle    = y_pred[0]
-    pred_throttle = y_pred[1]
-    pred_is_sim   = y_pred[2]
-    pred_smoosh   = y_pred[3]
-
-    loss  = K.mean(K.square(pred_angle-gt_angle))
-    loss += K.mean(K.square(pred_throttle-gt_throttle))
-
-    #categorical_crossentropy
-    is_sim_loss = K.mean(K.categorical_crossentropy(pred_is_sim, gt_is_sim))
-    loss += K.mean(K.categorical_crossentropy(pred_smoosh, point_5))
-    return loss
-
-def control_only_metric(y_true, y_pred):
-    gt_angle      = y_true[0]
-    gt_throttle   = y_true[1]
-
-    pred_angle    = y_pred[0]
-    pred_throttle = y_pred[1]
-
-    return K.mean(K.square(pred_angle-gt_angle)) +\
-           K.mean(K.square(pred_throttle-gt_throttle))
-
 class CrossentropySmoosh(KerasPilot):
     '''
 
     '''
-    def __init__(self):
-        super(CrossentropySmoosh, self).__init__(smoosh_classification())
+    from layers import smoosh_classification
+    def __init__(self, *, model):
+        super(CrossentropySmoosh, self).__init__(model)
 
-    def compile(self):
+    def compile(self, *, loss):
         self.model.compile(optimizer=self.optimizer,
                            loss=loss, metrics={"control_only_metric" : control_only_metric})
 

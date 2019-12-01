@@ -22,7 +22,7 @@ def load_image(img):
 def batcher(seq, size):
     return (seq[pos:pos + size] for pos in range(0, len(seq), size))
 
-def get_gen(data, batch_size, smooshing, categorical=False):
+def get_gen(data, batch_size, mode):
     while True:
         np.random.shuffle(data)
         for batch in batcher(data, batch_size):
@@ -42,12 +42,14 @@ def get_gen(data, batch_size, smooshing, categorical=False):
                 steering.append(ele[STEERING])
                 throttle.append(ele[THROTTLE])
 
-                if smooshing:
+                if mode in ["L", "C"]:
                     is_sim.append(ele[IS_SIM])
-                    if categorical:
+                    if mode == "C":
                         smoosh.append([0.5,0.5])
-                    else:
+                    elif mode == "L":
                         smoosh.append(0.5)
+                    else:
+                        assert False, "POOP"
                     y = [steering, throttle, is_sim, smoosh]
                 else:
                     y = [steering, throttle]
@@ -56,7 +58,7 @@ def get_gen(data, batch_size, smooshing, categorical=False):
 
 
 def get_gens(tub_paths, batch_size=32, train_frac=0.8, seed=42,
-             smooshing=False, categorical=False):
+             mode  = "POOP"):
     np.random.seed(41)
     records = []
     for path in tub_paths:
