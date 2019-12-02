@@ -1,4 +1,4 @@
-from tensorflow import ConfigProto, Session
+from tensorflow.compat.v1 import Session, ConfigProto
 from tensorflow.python import keras
 from tensorflow.keras.losses import binary_crossentropy as bce
 from tensorflow.python.keras.layers import Input, Dense
@@ -35,8 +35,8 @@ def conv_layers():
 
 def default_n_linear():
     img_in, x  = conv_layers()
-    steering   = Dense(1, activation="linear", name="steering")(x)
-    throttle   = Dense(1, activation="linear", name="throttle")(x)
+    steering   = Dense(1, activation="linear", name="steering_output")(x)
+    throttle   = Dense(1, activation="linear", name="throttle_output")(x)
 
     outputs = [steering, throttle]
     model = Model(inputs=[img_in], outputs=outputs)
@@ -44,11 +44,11 @@ def default_n_linear():
 
 def smoosh_linear():
     img_in, x   = conv_layers()
-    steering    = Dense(1, activation="linear", name="steering")(x)
-    throttle    = Dense(1, activation="linear", name="throttle")(x)
-    smoosh      = Dense(1, activation="sigmoid", name="smoosh")(x)
+    steering    = Dense(1, activation="linear", name="steering_output")(x)
+    throttle    = Dense(1, activation="linear", name="throttle_output")(x)
+    smoosh      = Dense(1, activation="sigmoid", name="smoosh_output")(x)
     x_stop_grad = Lambda(lambda x: K.stop_gradient(x))(x)
-    is_sim      = Dense(1, activation="sigmoid", name="is_sim")(x_stop_grad) # real=0, sim=1
+    is_sim      = Dense(1, activation="sigmoid", name="is_sim_output")(x_stop_grad) # real=0, sim=1
 
     outputs = [steering, throttle, is_sim, smoosh]
     model = Model(inputs=[img_in], outputs=outputs)
@@ -56,11 +56,11 @@ def smoosh_linear():
 
 def smoosh_classification():
     img_in, x   = conv_layers()
-    steering    = Dense(1, activation="linear", name="steering")(x)
-    throttle    = Dense(1, activation="linear", name="throttle")(x)
-    smoosh      = Dense(2, activation="softmax", name="smoosh")(x)
+    steering    = Dense(1, activation="linear", name="steering_output")(x)
+    throttle    = Dense(1, activation="linear", name="throttle_output")(x)
+    smoosh      = Dense(2, activation="softmax", name="smoosh_output")(x)
     x_stop_grad = Lambda(lambda x: K.stop_gradient(x))(x)
-    is_sim      = Dense(2, activation="softmax", name="is_sim")(x_stop_grad) # real=0, sim=1
+    is_sim      = Dense(2, activation="softmax", name="is_sim_output")(x_stop_grad) # real=0, sim=1
 
     outputs = [steering, throttle, is_sim, smoosh]
     model = Model(inputs=[img_in], outputs=outputs)

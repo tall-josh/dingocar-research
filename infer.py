@@ -1,5 +1,5 @@
 from glob import glob
-from models import  KerasLinear, CrossentropySmoosh, LinearSmoosh
+from cli_utils import get_stuff_from_mode
 from generators import get_gens
 import click
 from generators import get_gens
@@ -13,23 +13,10 @@ __all__ = ["infer"]
 @click.command("infer")
 @click.option("--tub", "-t", type=click.Path(), multiple=True)
 @click.option("--ckpt", "-c", type=click.Path())
-@click.option("--model", "-m", type=str)
-def infer(tub, ckpt, model):
+@click.option("--mode", "-m", type=str)
+def infer(tub, ckpt, mode):
     tub_paths = tub
-    if model == "L":
-        smooshing = True
-        kl = LinearSmoosh()
-    elif model == "C":
-        smooshing = True
-        kl = CrossentropySmoosh()
-    elif model == "D":
-        smooshing = False
-        kl = KerasLinear()
-    else:
-        print("you fuckhead")
-        return -1
-
-    kl.compile()
+    kl, saved_model_dir = get_stuff_from_mode(mode)
     kl.load_weights(ckpt)
 
     # smooshing alwasy needs to be True here because we need to is_sim

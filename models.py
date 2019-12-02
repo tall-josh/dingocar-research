@@ -1,12 +1,11 @@
 import os
 import numpy as np
 from glob import glob
-
-from tensorflow import ConfigProto, Session
-from tensorflow.python import keras
+from tensorflow.compat.v1 import Session, ConfigProto
 from tensorflow.keras.losses import categorical_crossentropy
+from tensorflow.python import keras
 from tensorflow.python.keras.layers import Input, Dense
-import tensorflow.python.keras.backend as K
+from tensorflow.python.keras import backend as K
 from tensorflow.python.keras.layers import Convolution2D, MaxPooling2D, Reshape, BatchNormalization
 from tensorflow.python.keras.layers import Activation, Dropout, Flatten, Cropping2D, Lambda
 from tensorflow.python.keras.models import Model, Sequential
@@ -149,5 +148,5 @@ class CrossentropySmoosh(KerasPilot):
 
     def compile(self, *, loss):
         self.model.compile(optimizer=self.optimizer,
-                           loss=loss, metrics={"control_only_metric" : control_only_metric})
+                           loss=loss)#, metrics={"control_only_metric" : control_only_metric})
 
