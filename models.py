@@ -133,7 +133,7 @@ class LinearSmoosh(KerasPilot):
                            saved_model_path, epochs=epochs,
                            verbose=verbose, min_delta=min_delta,
                            patience=patience,
-                           monitor="val_steering_loss",
+                           monitor="val_steering_output_loss",
                            other_callbacks = [copy_weights_callback])
 
 ################################################################################
@@ -150,3 +150,14 @@ class CrossentropySmoosh(KerasPilot):
         self.model.compile(optimizer=self.optimizer,
                            loss=loss)#, metrics={"control_only_metric" : control_only_metric})
 
+    def train(self, train_gen, val_gen, train_steps, val_steps,
+              saved_model_path, epochs=100,
+              verbose=1, min_delta=.0005, patience=5):
+
+        copy_weights_callback = CopyWeights(self)
+        return super().train(train_gen, val_gen, train_steps, val_steps,
+                           saved_model_path, epochs=epochs,
+                           verbose=verbose, min_delta=min_delta,
+                           patience=patience,
+                           monitor="val_steering_output_loss",
+                           other_callbacks = [copy_weights_callback])

@@ -9,7 +9,6 @@ __all__ = ["train"]
 @click.option("--tub", "-t", type=click.Path(), multiple=True)
 @click.option("--mode", "-m", type=str, help="(D)efault | (L)inear_smoosh | (C)ategorical_smoosh")
 def train(tub, mode):
-    #saved_model_dir = outdir
     tub_paths = tub
     kl, saved_model_dir = get_stuff_from_mode(mode)
     (train_gen, train_steps), (val_gen, val_steps) = get_gens(tub_paths, mode = mode)

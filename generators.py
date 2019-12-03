@@ -43,11 +43,12 @@ def get_gen(data, batch_size, mode):
                 throttle.append(ele[THROTTLE])
 
                 if mode in ["L", "C"]:
-                    is_sim.append(ele[IS_SIM])
                     if mode == "C":
                         smoosh.append([0.5,0.5])
+                        is_sim.append([ele[IS_SIM], not ele[IS_SIM]])
                     elif mode == "L":
                         smoosh.append(0.5)
+                        is_sim.append(ele[IS_SIM])
                     else:
                         assert False, "POOP"
                     y = [steering, throttle, is_sim, smoosh]
