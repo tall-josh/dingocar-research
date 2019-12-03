@@ -1,7 +1,7 @@
 import os
 import numpy as np
 from glob import glob
-from tensorflow.compat.v1 import Session, ConfigProto
+from tensorflow.compat.v1 import Session, ConfigProto, disable_eager_execution
 from tensorflow.keras.losses import categorical_crossentropy
 from tensorflow.python import keras
 from tensorflow.python.keras.layers import Input, Dense
@@ -21,6 +21,7 @@ class KerasPilot(object):
     Base class for Keras models that will provide steering and throttle to guide a car.
     '''
     def __init__(self, model):
+        #disable_eager_execution()
         self.model = model
         self.optimizer = "adam"
 
@@ -83,11 +84,11 @@ class KerasPilot(object):
         return float(steering[0][0]), float(throttle[0][0])
 
     def get_features(self, img_arr):
-        lp = 0 # learning_phase
+        #lp = 0 # learning_phase
         inp = self.model.input
         out = self.model.layers[14].output
-        func = K.function([inp, K.learning_phase()], out)
-        features = func([img_arr, lp])
+        func = K.function([inp], out)
+        features = func([img_arr])
         return features[0].tolist()
 
 
