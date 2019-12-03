@@ -84,11 +84,11 @@ class KerasPilot(object):
         return float(steering[0][0]), float(throttle[0][0])
 
     def get_features(self, img_arr):
-        #lp = 0 # learning_phase
+        lp = 0 # learning_phase
         inp = self.model.input
         out = self.model.layers[14].output
-        func = K.function([inp], out)
-        features = func([img_arr])
+        func = K.function([inp, K.learning_phase()], out)
+        features = func([img_arr, lp])
         return features[0].tolist()
 
 
