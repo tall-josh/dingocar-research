@@ -10,6 +10,7 @@ from tensorflow.python.keras.layers import Convolution2D, MaxPooling2D, Reshape,
 from tensorflow.python.keras.layers import Activation, Dropout, Flatten, Cropping2D, Lambda
 from tensorflow.python.keras.models import Model, Sequential
 from tensorflow.python.keras.layers.merge import concatenate
+from callbacks import CopyWeights
 
 from generators import get_gens
 
@@ -113,8 +114,6 @@ class LinearSmoosh(KerasPilot):
     Keras Dense layer with linear activation. One each for steering and throttle.
     The output is not bounded.
     '''
-    from layers import smoosh_linear
-    from losses import is_sim_linear_loss as loss
     def __init__(self, *, model):
         super(LinearSmoosh, self).__init__(model)
 
@@ -142,7 +141,6 @@ class CrossentropySmoosh(KerasPilot):
     '''
 
     '''
-    from layers import smoosh_classification
     def __init__(self, *, model):
         super(CrossentropySmoosh, self).__init__(model)
 

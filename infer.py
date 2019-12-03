@@ -22,7 +22,7 @@ def infer(tub, ckpt, mode):
     # smooshing alwasy needs to be True here because we need to is_sim
     # label to match to the embeddings. If False the generator will not
     # return the is_sim labels.
-    (_,_), (val_gen, val_count) = get_gens(tub_paths, batch_size=1, smooshing = True)
+    (_,_), (val_gen, val_count) = get_gens(tub_paths, batch_size=1, mode=mode)
 
     result = {"embedding"     : [],
               "gt_steering"   : [],

@@ -17,7 +17,7 @@ def train(tub, mode):
     saved_model_path = f"{saved_model_dir}/{num:02d}.h5"
     kl.train(train_gen, val_gen, train_steps, val_steps,
              saved_model_path, epochs=50,
-             verbose=1, min_delta=.0005, patience=5)
+             verbose=1, min_delta=.0005, patience=8)
 
 
 if __name__ == "__main__":
