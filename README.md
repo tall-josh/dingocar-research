@@ -1,3 +1,5 @@
+# WIP WIP WIP WIP WIP
+
 # dingocar-research
 A stripped back version of the donkeycar ml models for tinkering with and exploring some crazy ideas I have.
 
@@ -21,6 +23,16 @@ This approach seems intuatively like it should work, and in practice it shows so
 
 ## My approach
 
-This approach is sort-of similar to point 3 in that I want to prevent them model learning a bi-modal solution to the problem. It is also similar to the Cycle GAN approach in that I want to learn features in from simulated data that are indistinguishable from real-world features. 
+This approach is sort-of similar to point 3 in that I want to prevent them model learning a bi-modal solution to the problem. It is also similar to the Cycle GAN approach in that I want to learn features from simulated data that are indistinguishable from real-world features. 
 
-The keys is I'm focusing on the _feature space_ directly NOT _pixel space_ (ie: relying on image reconstruction)
+The keys is I'm focusing on the _feature space_ directly NOT _pixel space_ (ie: relying on image reconstruction). To do this, in addition to the 2 heads for steering and throttle control. I also have 2 additional heads for sim/real clasification and what I call _smoosh_ (because I don't know the term for forcing one distribution to look like another). 
+
+Our goal is, when presented with an input image from either the sim or real-world we dont want any domain specific features to be present in the feature vecture. Put another way, given the feature vector, we don't want to be able to reliabily predict wether the input was a simulated or real-world image.
+
+To achieve this, as far as I know optimizing for 'confusion' while simultainously optimizing for accuracy is not really a thing...? (hit me up if you have a better way, there is probably one out there). Neively I tried the following first time round:
+
+`loss = mse(steering) + mse(throttle) - mse(is_real_classification)`
+
+The logic being that `loss = mse(steering) + mse(throttle) !!!PLUS!!! mse(sim_real_classification)` would optimise for steering and throttle while making the sim\_real\_classification *good* as telling a sim from real. So `loss = mse(steering) + mse(throttle) !!!MINUS!!! mse(is_real_classification)` would optimise for steering and throttle while making the sim\_real\_classification *bad*.
+
+ At train when presented with the feature vector we want the sim/real classification layer to get good at telling the difference between simulated and real images, and we want 
