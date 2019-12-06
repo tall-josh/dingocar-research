@@ -48,4 +48,4 @@ def infer(tub, ckpt, mode):
         json.dump(result, f)
 
 if __name__ == "__main__":
-    train()
+    infer()
