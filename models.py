@@ -35,37 +35,42 @@ class KerasPilot(object):
         assert False, "Not implemented :-("
 
     def train(self, train_gen, val_gen, train_steps, val_steps,
-              saved_model_path, epochs=100,
+              outdir, epochs=100,
               verbose=1, min_delta=.0005, patience=5, monitor="val_loss",
-              early_stop_callback = None, save_best_callback=None,
+              use_early_stop=True, save_nth=None,
               other_callbacks = []):
 
         """
         train_gen: generator that yields an array of images an array of
 
         """
+        callbacks_list = other_callbacks
+        saved_model_path = os.path.join(outdir,"latest.h5")
+        save_best = keras.callbacks.ModelCheckpoint(saved_model_path,
+                                                    monitor=monitor,
+                                                    verbose=verbose,
+                                                    save_best_only=True,
+                                                    mode='min')
+        callbacks_list.append(save_best)
 
-        #checkpoint to save model after each epoch
-        if save_best_callback is not None:
-            save_best = save_best_callback
-        else:
-            save_best = keras.callbacks.ModelCheckpoint(saved_model_path,
+        #checkpoint to save model every nth epoch
+        if save_nth is not None:
+            path = os.path.join(outdir, 'weights{epoch:03d}.h5')
+            save_nth_callback = keras.callbacks.ModelCheckpoint(path,
+                                                        period=save_nth,
                                                         monitor=monitor,
                                                         verbose=verbose,
-                                                        save_best_only=True,
                                                         mode='min')
+            callbacks_list.append(save_nth_callback)
 
         #stop training if the validation error stops improving.
-        if early_stop_callback is not None:
-            early_stop = early_stop_callback
-        else:
+        if use_early_stop:
             early_stop = keras.callbacks.EarlyStopping(monitor=monitor,
                                                    min_delta=min_delta,
                                                    patience=patience,
                                                    verbose=verbose,
                                                    mode='min')
-
-        callbacks_list = [save_best, early_stop] + other_callbacks
+            callbacks_list.append(early_stop)
 
         hist = self.model.fit_generator(
                         train_gen,
@@ -125,16 +130,22 @@ class LinearSmoosh(KerasPilot):
 
 
     def train(self, train_gen, val_gen, train_steps, val_steps,
-              saved_model_path, epochs=100,
-              verbose=1, min_delta=.0005, patience=5):
+              outdir, epochs=100,
+              verbose=1, min_delta=.0005, patience=5, use_early_stop=True,
+              save_nth=None):
 
         copy_weights_callback = CopyWeights(self)
         return super().train(train_gen, val_gen, train_steps, val_steps,
-                           saved_model_path, epochs=epochs,
-                           verbose=verbose, min_delta=min_delta,
+                           outdir,
+                           epochs=epochs,
+                           verbose=verbose,
+                           min_delta=min_delta,
                            patience=patience,
                            monitor="val_steering_output_loss",
+                           use_early_stop=use_early_stop,
+                           save_nth=save_nth,
                            other_callbacks = [copy_weights_callback])
+
 
 ################################################################################
 
@@ -150,13 +161,18 @@ class CrossentropySmoosh(KerasPilot):
                            loss=loss)#, metrics={"control_only_metric" : control_only_metric})
 
     def train(self, train_gen, val_gen, train_steps, val_steps,
-              saved_model_path, epochs=100,
-              verbose=1, min_delta=.0005, patience=5):
+              outdir, epochs=100,
+              verbose=1, min_delta=.0005, patience=5, use_early_stop=True,
+              save_nth=None):
 
         copy_weights_callback = CopyWeights(self)
         return super().train(train_gen, val_gen, train_steps, val_steps,
-                           saved_model_path, epochs=epochs,
-                           verbose=verbose, min_delta=min_delta,
+                           outdir,
+                           epochs=epochs,
+                           verbose=verbose,
+                           min_delta=min_delta,
                            patience=patience,
                            monitor="val_steering_output_loss",
+                           use_early_stop=use_early_stop,
+                           save_nth=save_nth,
                            other_callbacks = [copy_weights_callback])

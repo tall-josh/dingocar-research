@@ -17,7 +17,3 @@ class CopyWeights(keras.callbacks.Callback):
 
         smoosh.set_weights(is_sim.get_weights())
 
-class ControlOnlyEarlyStop(keras.callbacks.Callback):
-
-    def __init__(self):
-        pass
