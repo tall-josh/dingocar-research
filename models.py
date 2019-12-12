@@ -1,7 +1,7 @@
 import os
 import numpy as np
 from glob import glob
-from tensorflow.compat.v1 import Session, ConfigProto, disable_eager_execution
+from tensorflow.compat.v1 import Session, ConfigProto
 from tensorflow.keras.losses import categorical_crossentropy
 from tensorflow.python import keras
 from tensorflow.python.keras.layers import Input, Dense
@@ -89,6 +89,8 @@ class KerasPilot(object):
         return float(steering[0][0]), float(throttle[0][0])
 
     def get_features(self, img_arr):
+        # Layer 14 is the final fully connected layer before splitting into 
+        # different heads.
         lp = 0 # learning_phase
         inp = self.model.input
         out = self.model.layers[14].output

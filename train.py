@@ -10,7 +10,8 @@ __all__ = ["train"]
 
 @click.command("train")
 @click.option("--tub", "-t", type=click.Path(), multiple=True)
-@click.option("--mode", "-m", type=str, help="(D)efault | (L)inear_smoosh | (C)ategorical_smoosh")
+@click.option("--mode", "-m", type=str,
+              help="(D)efault | (L)inear_smoosh | (C)ategorical_smoosh")
 def train(tub, mode):
     cfg = load_config()
 
@@ -41,7 +42,6 @@ def train(tub, mode):
              patience=cfg.EARLY_STOP_PATIENTCE
              )
 
-    #import pdb; pdb.set_trace()
     dump_history(hist, outdir)
 
 if __name__ == "__main__":
