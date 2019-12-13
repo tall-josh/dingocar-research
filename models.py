@@ -70,7 +70,7 @@ class KerasPilot(object):
                                                    verbose=verbose,
                                                    mode='min')
             callbacks_list.append(early_stop)
-
+        import pdb; pdb.set_trace()
         hist = self.model.fit_generator(
                         train_gen,
                         steps_per_epoch=train_steps,
@@ -138,21 +138,20 @@ class LinearSmoosh(KerasPilot):
                            loss=loss)
         print(f"Availiable metrics: {self.model.metrics_names}")
 
-
     def train(self, train_gen, val_gen, train_steps, val_steps,
               epochs=100, verbose=1, min_delta=.0005, patience=5,
               use_early_stop=True, save_nth=None):
 
         copy_weights_callback = CopyWeights(self)
         return super().train(train_gen, val_gen, train_steps, val_steps,
-                           epochs=epochs,
-                           verbose=verbose,
-                           min_delta=min_delta,
-                           patience=patience,
-                           monitor="val_steering_output_loss",
-                           use_early_stop=use_early_stop,
-                           save_nth=save_nth,
-                           other_callbacks = [copy_weights_callback])
+                             epochs=epochs,
+                             verbose=verbose,
+                             min_delta=min_delta,
+                             patience=patience,
+                             monitor="val_steering_output_loss",
+                             use_early_stop=use_early_stop,
+                             save_nth=save_nth,
+                             other_callbacks = [copy_weights_callback])
 
 
 ################################################################################
