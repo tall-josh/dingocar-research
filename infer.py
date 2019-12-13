@@ -1,5 +1,5 @@
 from glob import glob
-from cli_utils import get_stuff_from_mode, load_config
+from cli_utils import get_save_model_dir, load_config
 from generators import get_gens
 import click
 from generators import get_gens
@@ -22,7 +22,7 @@ def infer(tub, ckpt, config):
         tub_paths = cfg.get("TUBS", default=())
     print(f"tub_paths -----> {tub_paths}")
     mode = cfg.MODE
-    kl, _ = get_stuff_from_mode(mode)
+    kl, _ = get_save_model_dir(mode)
     kl.load_weights(ckpt)
 
     # smooshing alwasy needs to be True here because we need to is_sim

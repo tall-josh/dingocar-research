@@ -60,7 +60,7 @@ def get_gen(data, batch_size, mode):
 
 def get_gens(tub_paths, batch_size=32, train_frac=0.8, seed=42,
              mode  = "POOP"):
-    np.random.seed(41)
+    np.random.seed(seed)
     records = []
     for path in tub_paths:
         for r_path in Path(path).glob("record*.json"):
@@ -76,7 +76,7 @@ def get_gens(tub_paths, batch_size=32, train_frac=0.8, seed=42,
     train_gen = get_gen(train_data, batch_size, mode)
     valid_gen = get_gen(valid_data, batch_size, mode)
 
-    return ((train_gen, int(len(train_data)/batch_size)),
-           (valid_gen, int(len(valid_data)/batch_size)))
+    return (train_gen, int(len(train_data)/batch_size),
+            valid_gen, int(len(valid_data)/batch_size))
 
 
