@@ -21,5 +21,5 @@ jobs:
       - run:
           command: pip install pytest
       - run:
-          command: pytest test/
+          command: pytest tests/
 
