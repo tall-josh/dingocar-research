@@ -5,9 +5,6 @@ jobs:
   build:
     docker:
       - image: dseuss/cunda:10.1-baseA
-    run:
-      desctiption: |
-              "Awesome shit"
     steps:
       - run:
           command: echo "hello"
