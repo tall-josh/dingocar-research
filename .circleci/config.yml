@@ -6,6 +6,20 @@ jobs:
     docker:
       - image: dseuss/cunda:10.1-base
     steps:
+      - checkout
       - run:
           command: echo "hello"
           name: says hello
+      - run:
+          command: pwd
+      - run:
+          command: ls
+      - run:
+          command: conda env create -f env-ubuntu.yml
+      - run:
+          command: conda activate dingo
+      - run:
+          command: pip install pytest
+      - run:
+          command: pytest test/
+
