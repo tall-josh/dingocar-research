@@ -17,9 +17,7 @@ jobs:
       - run:
           command: conda env create -f env-ubuntu.yml
       - run:
-          command: source activate dingo
+          command: source activate dingo & pip install pytest
       - run:
-          command: pip install pytest
-      - run:
-          command: pytest tests/
+          command: source activate dingo & pytest tests/
 
