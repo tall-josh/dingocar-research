@@ -4,7 +4,7 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: dseuss/cunda:10.1-baseA
+      - image: dseuss/cunda:10.1-base
     steps:
       - run:
           command: echo "hello"
